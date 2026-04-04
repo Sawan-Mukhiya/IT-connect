@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}ITCONNECT | Choose Account Type{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .page-header {
+            margin-top: 16px;
+        }
+
+        .registration-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 28px;
+        }
+
+        .role-card {
+            background: white;
+            border: 1px solid rgba(99, 102, 241, 0.14);
+            border-radius: 26px;
+            padding: 32px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .role-card h3 {
+            margin: 0;
+            font-size: 1.45rem;
+            color: #0f172a;
+        }
+
+        .role-card p {
+            color: #475569;
+            line-height: 1.75;
+        }
+
+        .role-card a {
+            margin-top: auto;
+            align-self: flex-start;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="content-panel page-header">
+    <p class="eyebrow">Register for your role</p>
+    <h1>Join ITCONNECT as an Organizer or Student.</h1>
+    <p class="section-copy">Select your role to see the right registration form and build your profile with the fields that matter for your account type.</p>
+</section>
+
+<section class="content-panel page-section">
+    <div class="section-title">Choose your account type</div>
+    <p class="section-copy">Each user type gets a dedicated registration flow so organizers and students only enter the information relevant to them.</p>
+    <div class="registration-actions">
+        <div class="role-card">
+            <h3>Organizer</h3>
+            <p>Register with organization details, license number, and website information to manage events and participants.</p>
+            <a class="button button-primary" href="{% url 'accounts:register' %}?user_type=organizer">Register as Organizer</a>
+        </div>
+        <div class="role-card">
+            <h3>Student</h3>
+            <p>Register with student ID, grade level, major, and graduation year to join as a student member.</p>
+            <a class="button button-primary" href="{% url 'accounts:register' %}?user_type=student">Register as Student</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

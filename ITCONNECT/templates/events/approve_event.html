@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Event - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .approval-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .approval-header {
+            margin-bottom: 32px;
+        }
+
+        .approval-header h1 {
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .approval-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .approval-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .event-info {
+            margin-bottom: 32px;
+        }
+
+        .event-info h2 {
+            color: #1f2937;
+            margin: 0 0 16px 0;
+            font-size: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .event-description {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+
+        .event-description h3 {
+            margin: 0 0 8px 0;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .event-description p {
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .organizer-info {
+            background: #f0f9ff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            margin-bottom: 24px;
+        }
+
+        .organizer-info h3 {
+            margin: 0 0 12px 0;
+            color: #1e40af;
+            font-size: 0.95rem;
+        }
+
+        .organizer-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .organizer-detail {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .organizer-detail strong {
+            color: #374151;
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #6b7280;
+            border-color: #e5e7eb;
+        }
+
+        .btn-cancel:hover {
+            background: #f9fafb;
+            border-color: #6b7280;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .approval-card {
+                padding: 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .organizer-details {
+                grid-template-columns: 1fr;
+            }
+
+            .approval-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="approval-container">
+    <!-- Header -->
+    <div class="approval-header">
+        <h1>Review & Approve Event</h1>
+        <p>Check the event details before approving for public listing</p>
+    </div>
+
+    <!-- Event Card -->
+    <div class="approval-card">
+        <!-- Event Title -->
+        <div class="event-info">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <h2>{{ event.title }}</h2>
+                <span class="status-badge">Pending Review</span>
+            </div>
+        </div>
+
+        <!-- Event Details Grid -->
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Date & Time</div>
+                <div class="info-value">{{ event.date|date:"M j, Y g:i A" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Registration Deadline</div>
+                <div class="info-value">{{ event.deadline|date:"M j, Y g:i A" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Event Type</div>
+                <div class="info-value">{{ event.get_event_type_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Category</div>
+                <div class="info-value">{{ event.get_category_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Available Seats</div>
+                <div class="info-value">{{ event.seats }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Price</div>
+                <div class="info-value">
+                    {% if event.is_paid %}
+                        ${{ event.price }}
+                    {% else %}
+                        Free
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if event.location %}
+            <div class="info-item">
+                <div class="info-label">Location</div>
+                <div class="info-value">{{ event.location }}</div>
+            </div>
+        {% endif %}
+
+        <!-- Description -->
+        <div class="event-description">
+            <h3>Event Description</h3>
+            <p>{{ event.description }}</p>
+        </div>
+
+        <!-- Organizer Info -->
+        <div class="organizer-info">
+            <h3>Organizer Information</h3>
+            <div class="organizer-details">
+                <div class="organizer-detail">
+                    <strong>Name:</strong> {{ event.organizer.get_full_name|default:event.organizer.username }}
+                </div>
+                <div class="organizer-detail">
+                    <strong>Organization:</strong> {{ event.organizer.organizer_profile.organization_name }}
+                </div>
+                <div class="organizer-detail">
+                    <strong>Organization Type:</strong> {{ event.organizer.organizer_profile.organization_type }}
+                </div>
+                <div class="organizer-detail">
+                    <strong>Email:</strong> {{ event.organizer.email }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval Actions -->
+        <form method="post" class="form-approval">
+            {% csrf_token %}
+            <div class="approval-actions">
+                <a href="{% url 'events:admin_pending_events' %}" class="btn btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-approve">✓ Approve Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

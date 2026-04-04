@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Reject Event - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .rejection-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .rejection-header {
+            margin-bottom: 32px;
+        }
+
+        .rejection-header h1 {
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .rejection-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .rejection-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .event-summary {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .event-summary h3 {
+            margin: 0 0 8px 0;
+            color: #991b1b;
+            font-size: 0.95rem;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+        }
+
+        .event-organizer {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #1f2937;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .textarea-hint {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .rejection-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reject {
+            background: #dc2626;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-reject:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #6b7280;
+            border-color: #e5e7eb;
+        }
+
+        .btn-cancel:hover {
+            background: #f9fafb;
+            border-color: #6b7280;
+        }
+
+        .warning-banner {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            color: #92400e;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .rejection-card {
+                padding: 24px;
+            }
+
+            .rejection-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="rejection-container">
+    <!-- Header -->
+    <div class="rejection-header">
+        <h1>Reject Event</h1>
+        <p>Provide a reason for rejection. The organizer will be notified.</p>
+    </div>
+
+    <!-- Rejection Card -->
+    <div class="rejection-card">
+        <!-- Warning Banner -->
+        <div class="warning-banner">
+            ⚠️ This action will reject the event and notify the organizer. Users will not be able to register for this event.
+        </div>
+
+        <!-- Event Summary -->
+        <div class="event-summary">
+            <h3>Event Being Rejected</h3>
+            <p class="event-title">{{ event.title }}</p>
+            <p class="event-organizer">by {{ event.organizer.get_full_name|default:event.organizer.username }}</p>
+        </div>
+
+        <!-- Rejection Form -->
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Rejection Reason -->
+            <div class="form-group">
+                <label for="rejection_reason">Reason for Rejection *</label>
+                <textarea 
+                    id="rejection_reason" 
+                    name="rejection_reason" 
+                    rows="6" 
+                    placeholder="Explain why this event is being rejected. This will be communicated to the organizer..."
+                    required
+                ></textarea>
+                <p class="textarea-hint">Be specific and constructive - help the organizer understand what needs to be improved.</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="rejection-actions">
+                <a href="{% url 'events:admin_pending_events' %}" class="btn btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-reject">✕ Reject Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

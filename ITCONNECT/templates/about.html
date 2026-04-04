@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}ITCONNECT | About{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <p class="eyebrow">About ITCONNECT</p>
+    <h1>One platform for smarter event registration and user management.</h1>
+    <p>ITCONNECT is designed to streamline registration for multiple user roles, helping institutions and communities onboard admins, organizers, and students with custom profile fields.</p>
+</section>
+
+<section class="content-panel page-section">
+    <div class="section-title">What we offer</div>
+    <p class="section-copy">This project combines a custom Django user model with role-specific profiles so registration can adapt based on the user's role. It keeps common account fields consistent while allowing each type to capture only the data that matters to them.</p>
+    <div class="card-grid">
+        <div class="card">
+            <h3>Custom user profiles</h3>
+            <p>Each account type gets a dedicated profile model so admins, organizers, and students store only relevant information.</p>
+        </div>
+        <div class="card">
+            <h3>Reusable layout</h3>
+            <p>All pages now extend a shared base template so navigation, header, and footer are consistent across the app.</p>
+        </div>
+        <div class="card">
+            <h3>Expandable structure</h3>
+            <p>You can add more pages and features without copying boilerplate HTML, since each page extends the base template.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

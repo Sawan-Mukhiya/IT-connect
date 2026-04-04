@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Events - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .events-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .events-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .events-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .events-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .filters-section {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .filters-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            color: #1f2937;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-image {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .event-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-content {
+            padding: 24px;
+        }
+
+        .event-type {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .event-title:hover {
+            color: #667eea;
+        }
+
+        .event-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 12px;
+        }
+
+        .event-meta div {
+            margin-bottom: 4px;
+        }
+
+        .event-description {
+            color: #4b5563;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-price {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .event-price.free {
+            color: #059669;
+        }
+
+        .event-price.paid {
+            color: #dc2626;
+        }
+
+        .event-seats {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .no-events h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-form {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="events-container">
+    <div class="events-header">
+        <h1>Discover Events</h1>
+        <p>Find and register for amazing events, workshops, seminars, and hackathons</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <form method="get" class="filters-form">
+            <div class="filter-group">
+                <label for="search">Search Events</label>
+                <input type="text" id="search" name="search" value="{{ current_filters.search }}"
+                       placeholder="Search by title, description, or organizer">
+            </div>
+
+            <div class="filter-group">
+                <label for="type">Event Type</label>
+                <select id="type" name="type">
+                    <option value="">All Types</option>
+                    {% for value, label in event_types %}
+                        <option value="{{ value }}" {% if current_filters.type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    {% for value, label in categories %}
+                        <option value="{{ value }}" {% if current_filters.category == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-buttons">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'events:event_list' %}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Events Grid -->
+    {% if events %}
+        <div class="events-grid">
+            {% for event in events %}
+                <div class="event-card">
+                    <div class="event-image">
+                        {% if event.image %}
+                            <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                        {% else %}
+                            <span>{{ event.get_event_type_display.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="event-content">
+                        <span class="event-type">{{ event.get_event_type_display }}</span>
+
+                        <a href="{% url 'events:event_detail' event.id %}" class="event-title">
+                            {{ event.title }}
+                        </a>
+
+                        <div class="event-meta">
+                            <div><strong>Organizer:</strong> {{ event.organizer.username }}</div>
+                            <div><strong>Date:</strong> {{ event.date|date:"M j, Y g:i A" }}</div>
+                            <div><strong>Category:</strong> {{ event.get_category_display }}</div>
+                            {% if event.location %}
+                                <div><strong>Location:</strong> {{ event.location }}</div>
+                            {% endif %}
+                        </div>
+
+                        <p class="event-description">{{ event.description }}</p>
+
+                        <div class="event-footer">
+                            <div class="event-price {% if event.is_paid %}paid{% else %}free{% endif %}">
+                                {% if event.is_paid %}
+                                    ${{ event.price }}
+                                {% else %}
+                                    Free
+                                {% endif %}
+                            </div>
+                            <div class="event-seats">
+                                {{ event.available_seats }}/{{ event.seats }} seats left
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-events">
+            <h3>No events found</h3>
+            <p>Try adjusting your filters or check back later for new events.</p>
+            <a href="{% url 'events:event_list' %}" class="btn btn-primary" style="margin-top: 20px;">
+                View All Events
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

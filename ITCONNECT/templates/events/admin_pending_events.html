@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Event Approval - Admin Dashboard - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+        }
+
+        .admin-header h1 {
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .admin-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 0 24px 24px 24px;
+        }
+
+        .event-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-image {
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .event-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-content {
+            padding: 20px;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+        }
+
+        .event-organizer {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 12px;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .event-meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .event-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+
+        .btn-view {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #4b5563;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px 0;
+            color: #374151;
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .event-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+        <h1>Event Approval Dashboard</h1>
+        <p>Review and approve events before they are listed publicly</p>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }} alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Pending Events -->
+    <div class="section">
+        <div class="section-header">
+            <h2>Pending Review</h2>
+            <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 0.875rem;">
+                {{ pending_events|length }} event{{ pending_events|length|pluralize }} awaiting approval
+            </p>
+        </div>
+
+        {% if pending_events %}
+            <div class="events-grid">
+                {% for event in pending_events %}
+                    <div class="event-card">
+                        <div class="event-image">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                            {% else %}
+                                <span>{{ event.get_event_type_display.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-content">
+                            <h3 class="event-title">{{ event.title }}</h3>
+                            
+                            <div class="event-organizer">
+                                Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}
+                            </div>
+
+                            <div class="event-meta">
+                                <div class="event-meta-item">
+                                    <strong>Date:</strong> {{ event.date|date:"M j, Y g:i A" }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Type:</strong> {{ event.get_event_type_display }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Category:</strong> {{ event.get_category_display }}
+                                </div>
+                                {% if event.location %}
+                                    <div class="event-meta-item">
+                                        <strong>Location:</strong> {{ event.location }}
+                                    </div>
+                                {% endif %}
+                                <div class="event-meta-item">
+                                    <strong>Status:</strong> <span class="status-badge status-pending">Pending Review</span>
+                                </div>
+                            </div>
+
+                            <div class="event-actions">
+                                <a href="{% url 'events:event_detail' event.id %}" class="btn btn-view">View Details</a>
+                                <a href="{% url 'events:approve_event' event.id %}" class="btn btn-approve">
+                                    ✓ Approve
+                                </a>
+                                <a href="{% url 'events:reject_event' event.id %}" class="btn btn-reject">
+                                    ✕ Reject
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No pending events</h3>
+                <p>All events have been reviewed!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Approved Events -->
+    <div class="section">
+        <div class="section-header">
+            <h2>Approved Events</h2>
+            <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 0.875rem;">
+                {{ approved_events|length }} event{{ approved_events|length|pluralize }} published
+            </p>
+        </div>
+
+        {% if approved_events %}
+            <div class="events-grid">
+                {% for event in approved_events %}
+                    <div class="event-card">
+                        <div class="event-image">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                            {% else %}
+                                <span>{{ event.get_event_type_display.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-content">
+                            <h3 class="event-title">{{ event.title }}</h3>
+                            
+                            <div class="event-organizer">
+                                Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}
+                            </div>
+
+                            <div class="event-meta">
+                                <div class="event-meta-item">
+                                    <strong>Date:</strong> {{ event.date|date:"M j, Y g:i A" }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Type:</strong> {{ event.get_event_type_display }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Category:</strong> {{ event.get_category_display }}
+                                </div>
+                                {% if event.location %}
+                                    <div class="event-meta-item">
+                                        <strong>Location:</strong> {{ event.location }}
+                                    </div>
+                                {% endif %}
+                                <div class="event-meta-item">
+                                    <strong>Approved By:</strong> {{ event.approved_by.get_full_name|default:event.approved_by.username }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Approved On:</strong> {{ event.approved_at|date:"M j, Y" }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <strong>Status:</strong> <span class="status-badge status-approved">Published</span>
+                                </div>
+                            </div>
+
+                            <div class="event-actions">
+                                <a href="{% url 'events:event_detail' event.id %}" class="btn btn-view">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No approved events yet</h3>
+                <p>Approved events will appear here</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .messages {
+        margin-bottom: 24px;
+    }
+
+    .message {
+        border-radius: 8px;
+        padding: 16px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .message.success {
+        background: #ecfdf5;
+        color: #166534;
+        border: 1px solid #a7f3d0;
+    }
+
+    .message.error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .message.info {
+        background: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+    }
+</style>
+{% endblock %}
