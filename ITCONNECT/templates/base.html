@@ -244,7 +244,19 @@
                 <a href="{% url 'home' %}">Home</a>
                 <a href="{% url 'about' %}">About</a>
                 <a href="{% url 'contact' %}">Contact</a>
-                <a href="{% url 'choose_registration_type' %}">Register</a>
+                {% if user.is_authenticated %}
+                    {% if user.user_type == 'organizer' %}
+                        <a href="{% url 'events:organizer_dashboard' %}">Dashboard</a>
+                    {% elif user.user_type == 'student' %}
+                        <a href="{% url 'events:student_dashboard' %}">Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'admin:index' %}">Admin</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'choose_registration_type' %}">Register</a>
+                {% endif %}
             </nav>
         </div>
     </header>

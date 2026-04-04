@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
-from .forms import CustomUserCreationForm, AdminRegistrationForm, OrganizerRegistrationForm, StudentRegistrationForm
+from django.contrib.auth.views import LoginView
+from .forms import CustomUserCreationForm, AdminRegistrationForm, OrganizerRegistrationForm, StudentRegistrationForm, CustomAuthenticationForm
 from .models import AdminProfile, OrganizerProfile, StudentProfile
 
 class RegistrationView(FormView):
@@ -55,6 +56,29 @@ class RegistrationView(FormView):
 
 def registration_success(request):
     return render(request, 'accounts/registration_success.html')
+
+class CustomLoginView(LoginView):
+    template_name = 'accounts/login.html'
+    form_class = CustomAuthenticationForm
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.user_type == 'organizer':
+            return reverse_lazy('events:organizer_dashboard')
+        elif user.user_type == 'student':
+            return reverse_lazy('events:student_dashboard')
+        else:  # admin
+            return reverse_lazy('admin:index')
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Welcome back, {self.request.user.get_full_name() or self.request.user.username}!')
+        return super().form_valid(form)
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, 'You have been logged out successfully.')
+    return redirect('home')
 
 def landing_page(request):
     return render(request, 'landing.html')
