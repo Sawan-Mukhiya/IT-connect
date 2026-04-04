@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}Update Interests - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .form-header h1 {
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .form-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        .interests-section {
+            margin-bottom: 32px;
+        }
+
+        .interests-section h2 {
+            color: #1f2937;
+            margin: 0 0 16px 0;
+            font-size: 1.25rem;
+        }
+
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .interest-option {
+            position: relative;
+        }
+
+        .interest-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .interest-label {
+            display: block;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .interest-label:hover {
+            border-color: #667eea;
+            background: #f3f4f6;
+        }
+
+        .interest-checkbox:checked + .interest-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .interest-icon {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .interest-name {
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .help-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .selected-count {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 24px;
+            }
+
+            .interests-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>Update Your Interests</h1>
+        <p>Select the topics and categories that interest you to get personalized event recommendations</p>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="help-text">
+                Choose as many interests as you'd like. We'll use these to recommend events that match your preferences.
+            </div>
+
+            <div class="selected-count">
+                <span id="selected-count">0</span> interests selected
+            </div>
+
+            <div class="interests-section">
+                <h2>Technology & Programming</h2>
+                <div class="interests-grid">
+                    <div class="interest-option">
+                        <input type="checkbox" id="web-dev" name="interests" value="web-development" class="interest-checkbox" {% if 'web-development' in selected_interests %}checked{% endif %}>
+                        <label for="web-dev" class="interest-label">
+                            <span class="interest-icon">🌐</span>
+                            <span class="interest-name">Web Development</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="mobile-dev" name="interests" value="mobile-development" class="interest-checkbox" {% if 'mobile-development' in selected_interests %}checked{% endif %}>
+                        <label for="mobile-dev" class="interest-label">
+                            <span class="interest-icon">📱</span>
+                            <span class="interest-name">Mobile Development</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="data-science" name="interests" value="data-science" class="interest-checkbox" {% if 'data-science' in selected_interests %}checked{% endif %}>
+                        <label for="data-science" class="interest-label">
+                            <span class="interest-icon">📊</span>
+                            <span class="interest-name">Data Science</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="ai-ml" name="interests" value="artificial-intelligence" class="interest-checkbox" {% if 'artificial-intelligence' in selected_interests %}checked{% endif %}>
+                        <label for="ai-ml" class="interest-label">
+                            <span class="interest-icon">🤖</span>
+                            <span class="interest-name">AI & Machine Learning</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="cybersecurity" name="interests" value="cybersecurity" class="interest-checkbox" {% if 'cybersecurity' in selected_interests %}checked{% endif %}>
+                        <label for="cybersecurity" class="interest-label">
+                            <span class="interest-icon">🔒</span>
+                            <span class="interest-name">Cybersecurity</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="cloud-computing" name="interests" value="cloud-computing" class="interest-checkbox" {% if 'cloud-computing' in selected_interests %}checked{% endif %}>
+                        <label for="cloud-computing" class="interest-label">
+                            <span class="interest-icon">☁️</span>
+                            <span class="interest-name">Cloud Computing</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interests-section">
+                <h2>Business & Career</h2>
+                <div class="interests-grid">
+                    <div class="interest-option">
+                        <input type="checkbox" id="entrepreneurship" name="interests" value="entrepreneurship" class="interest-checkbox" {% if 'entrepreneurship' in selected_interests %}checked{% endif %}>
+                        <label for="entrepreneurship" class="interest-label">
+                            <span class="interest-icon">🚀</span>
+                            <span class="interest-name">Entrepreneurship</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="digital-marketing" name="interests" value="digital-marketing" class="interest-checkbox" {% if 'digital-marketing' in selected_interests %}checked{% endif %}>
+                        <label for="digital-marketing" class="interest-label">
+                            <span class="interest-icon">📈</span>
+                            <span class="interest-name">Digital Marketing</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="finance" name="interests" value="finance" class="interest-checkbox" {% if 'finance' in selected_interests %}checked{% endif %}>
+                        <label for="finance" class="interest-label">
+                            <span class="interest-icon">💰</span>
+                            <span class="interest-name">Finance & FinTech</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="project-management" name="interests" value="project-management" class="interest-checkbox" {% if 'project-management' in selected_interests %}checked{% endif %}>
+                        <label for="project-management" class="interest-label">
+                            <span class="interest-icon">📋</span>
+                            <span class="interest-name">Project Management</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="leadership" name="interests" value="leadership" class="interest-checkbox" {% if 'leadership' in selected_interests %}checked{% endif %}>
+                        <label for="leadership" class="interest-label">
+                            <span class="interest-icon">👑</span>
+                            <span class="interest-name">Leadership</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="networking" name="interests" value="networking" class="interest-checkbox" {% if 'networking' in selected_interests %}checked{% endif %}>
+                        <label for="networking" class="interest-label">
+                            <span class="interest-icon">🤝</span>
+                            <span class="interest-name">Networking</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interests-section">
+                <h2>Design & Creative</h2>
+                <div class="interests-grid">
+                    <div class="interest-option">
+                        <input type="checkbox" id="ui-ux" name="interests" value="ui-ux-design" class="interest-checkbox" {% if 'ui-ux-design' in selected_interests %}checked{% endif %}>
+                        <label for="ui-ux" class="interest-label">
+                            <span class="interest-icon">🎨</span>
+                            <span class="interest-name">UI/UX Design</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="graphic-design" name="interests" value="graphic-design" class="interest-checkbox" {% if 'graphic-design' in selected_interests %}checked{% endif %}>
+                        <label for="graphic-design" class="interest-label">
+                            <span class="interest-icon">🖼️</span>
+                            <span class="interest-name">Graphic Design</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="product-design" name="interests" value="product-design" class="interest-checkbox" {% if 'product-design' in selected_interests %}checked{% endif %}>
+                        <label for="product-design" class="interest-label">
+                            <span class="interest-icon">📐</span>
+                            <span class="interest-name">Product Design</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="photography" name="interests" value="photography" class="interest-checkbox" {% if 'photography' in selected_interests %}checked{% endif %}>
+                        <label for="photography" class="interest-label">
+                            <span class="interest-icon">📷</span>
+                            <span class="interest-name">Photography</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interests-section">
+                <h2>Other Interests</h2>
+                <div class="interests-grid">
+                    <div class="interest-option">
+                        <input type="checkbox" id="research" name="interests" value="research" class="interest-checkbox" {% if 'research' in selected_interests %}checked{% endif %}>
+                        <label for="research" class="interest-label">
+                            <span class="interest-icon">🔬</span>
+                            <span class="interest-name">Research</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="education" name="interests" value="education" class="interest-checkbox" {% if 'education' in selected_interests %}checked{% endif %}>
+                        <label for="education" class="interest-label">
+                            <span class="interest-icon">📚</span>
+                            <span class="interest-name">Education</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="innovation" name="interests" value="innovation" class="interest-checkbox" {% if 'innovation' in selected_interests %}checked{% endif %}>
+                        <label for="innovation" class="interest-label">
+                            <span class="interest-icon">💡</span>
+                            <span class="interest-name">Innovation</span>
+                        </label>
+                    </div>
+
+                    <div class="interest-option">
+                        <input type="checkbox" id="sustainability" name="interests" value="sustainability" class="interest-checkbox" {% if 'sustainability' in selected_interests %}checked{% endif %}>
+                        <label for="sustainability" class="interest-label">
+                            <span class="interest-icon">🌱</span>
+                            <span class="interest-name">Sustainability</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'events:student_dashboard' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Interests
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.interest-checkbox');
+    const selectedCount = document.getElementById('selected-count');
+
+    function updateSelectedCount() {
+        const checkedBoxes = document.querySelectorAll('.interest-checkbox:checked');
+        selectedCount.textContent = checkedBoxes.length;
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+
+    // Initial count
+    updateSelectedCount();
+});
+</script>
+{% endblock %}

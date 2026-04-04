@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}ITCONNECT | Home{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <p class="eyebrow">Welcome to ITCONNECT</p>
+    <h1>Your registration hub for admins, organizers, and students.</h1>
+    <p>ITCONNECT helps every community member join with the right role and profile. Create your account, manage your event access, and keep your details organized.</p>
+    <div class="hero-actions">
+        <a class="button button-primary" href="{% url 'choose_registration_type' %}">Register Now</a>
+        <a class="button button-secondary" href="{% url 'about' %}">Learn More</a>
+    </div>
+</section>
+
+<section class="content-panel page-section">
+    <div class="section-title">Built for every account type</div>
+    <p class="section-copy">Whether you are an admin, organizer, or student, ITCONNECT offers a clean way to create a profile and get started quickly with the right permissions and fields for your role.</p>
+    <div class="card-grid">
+        <div class="card">
+            <h3>Admin accounts</h3>
+            <p>Admins can register with department details, employee IDs, and permission settings for content and event management.</p>
+        </div>
+        <div class="card">
+            <h3>Organizer accounts</h3>
+            <p>Organizers can register with organization details, licensing, and website information for managing events and schedules.</p>
+        </div>
+        <div class="card">
+            <h3>Student accounts</h3>
+            <p>Students can register with academic profile fields such as student ID, grade level, major, and graduation year.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

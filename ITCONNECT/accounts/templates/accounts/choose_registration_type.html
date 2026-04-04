@@ -1,484 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCONNECT - Your Educational Hub</title>
+{% extends "base.html" %}
+
+{% block title %}ITCONNECT | Choose Account Type{% endblock %}
+
+{% block extra_head %}
     <style>
-        /* Import Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        /* Font Awesome Icons - Inline SVG Icons */
-        .icon-graduation-cap::before { content: "🎓"; }
-        .icon-users::before { content: "👥"; }
-        .icon-calendar::before { content: "📅"; }
-        .icon-chart::before { content: "📊"; }
-        .icon-shield::before { content: "🛡️"; }
-        .icon-briefcase::before { content: "💼"; }
-        .icon-user-graduate::before { content: "👨‍🎓"; }
-        .icon-arrow-right::before { content: "→"; }
-    </style>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .page-header {
+            margin-top: 16px;
         }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        /* Animated background particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: float 15s infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) translateX(50px);
-                opacity: 0;
-            }
-        }
-        
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 60px 20px 40px;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .logo {
-            font-size: 3.5em;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
-            animation: slideDown 0.8s ease-out;
-        }
-        
-        .tagline {
-            font-size: 1.3em;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 300;
-            margin-bottom: 20px;
-            animation: slideUp 0.8s ease-out 0.2s both;
-        }
-        
-        .description {
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.8);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-            animation: fadeIn 1s ease-out 0.4s both;
-        }
-        
-        /* Main container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
-        }
-        
-        /* Features section */
-        .features {
+
+        .registration-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 28px;
         }
-        
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            animation: slideUp 0.8s ease-out 0.6s both;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .feature-title {
-            color: white;
-            font-size: 1.4em;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .feature-description {
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-        
-        /* Registration cards */
-        .registration-section {
-            margin-bottom: 60px;
-        }
-        
-        .section-title {
-            text-align: center;
-            color: white;
-            font-size: 2.5em;
-            font-weight: 600;
-            margin-bottom: 20px;
-            animation: fadeIn 1s ease-out 0.8s both;
-        }
-        
-        .section-subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2em;
-            margin-bottom: 50px;
-            animation: fadeIn 1s ease-out 1s both;
-        }
-        
-        .user-types {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-        }
-        
-        .user-type-card {
+
+        .role-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.8s ease-out 1.2s both;
-        }
-        
-        .user-type-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-        
-        .user-type-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .user-type-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-        }
-        
-        .icon-wrapper {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 25px;
-            border-radius: 50%;
+            border: 1px solid rgba(99, 102, 241, 0.14);
+            border-radius: 26px;
+            padding: 32px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5em;
-            transition: all 0.3s ease;
+            flex-direction: column;
+            gap: 20px;
         }
-        
-        .organizer .icon-wrapper {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
+
+        .role-card h3 {
+            margin: 0;
+            font-size: 1.45rem;
+            color: #0f172a;
         }
-        
-        .student .icon-wrapper {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+
+        .role-card p {
+            color: #475569;
+            line-height: 1.75;
         }
-        
-        .user-type-card:hover .icon-wrapper {
-            transform: scale(1.1) rotate(5deg);
-        }
-        
-        .user-type-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.8em;
-            font-weight: 600;
-        }
-        
-        .user-type-card p {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            font-size: 1.05em;
-        }
-        
-        .register-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .register-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .register-btn:hover::before {
-            left: 100%;
-        }
-        
-        .register-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: rgba(255, 255, 255, 0.7);
-            position: relative;
-            z-index: 2;
-        }
-        
-        /* Animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .logo {
-                font-size: 2.5em;
-            }
-            
-            .tagline {
-                font-size: 1.1em;
-            }
-            
-            .section-title {
-                font-size: 2em;
-            }
-            
-            .user-types {
-                grid-template-columns: 1fr;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-            }
+
+        .role-card a {
+            margin-top: auto;
+            align-self: flex-start;
         }
     </style>
-</head>
-<body>
-    <!-- Animated particles background -->
-    <div class="particles" id="particles"></div>
-    
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <span class="icon-graduation-cap"></span> ITCONNECT
+{% endblock %}
+
+{% block content %}
+<section class="content-panel page-header">
+    <p class="eyebrow">Register for your role</p>
+    <h1>Join ITCONNECT as an Admin, Organizer, or Student.</h1>
+    <p class="section-copy">Select your role to see the right registration form and build your profile with the fields that matter for your account type.</p>
+</section>
+
+<section class="content-panel page-section">
+    <div class="section-title">Choose your account type</div>
+    <p class="section-copy">Each user type gets a dedicated registration flow so admins, organizers, and students only enter the information relevant to them.</p>
+    <div class="registration-actions">
+        <div class="role-card">
+            <h3>Admin</h3>
+            <p>Register with department, employee ID, and permissions so your admin account is ready for event and user management.</p>
+            <a class="button button-primary" href="{% url 'register' %}?user_type=admin">Register as Admin</a>
         </div>
-        <p class="tagline">Connecting Education, Empowering Futures</p>
-        <p class="description">
-            Your comprehensive platform for educational collaboration, event management, and academic excellence. 
-            Join our community of learners, educators, and organizers.
-        </p>
-    </header>
-    
-    <!-- Features -->
-    <div class="container">
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="icon-users"></span>
-                </div>
-                <h3 class="feature-title">Community Driven</h3>
-                <p class="feature-description">
-                    Connect with peers, mentors, and educators in a vibrant learning ecosystem.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="icon-calendar"></span>
-                </div>
-                <h3 class="feature-title">Event Management</h3>
-                <p class="feature-description">
-                    Organize and participate in workshops, seminars, and educational events.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="icon-chart"></span>
-                </div>
-                <h3 class="feature-title">Track Progress</h3>
-                <p class="feature-description">
-                    Monitor your academic journey and achievements with comprehensive analytics.
-                </p>
-            </div>
+        <div class="role-card">
+            <h3>Organizer</h3>
+            <p>Register with organization details, license number, and website information to manage events and participants.</p>
+            <a class="button button-primary" href="{% url 'register' %}?user_type=organizer">Register as Organizer</a>
         </div>
-        
-        <!-- Registration Section -->
-        <section class="registration-section">
-            <h2 class="section-title">Join Our Community</h2>
-            <p class="section-subtitle">Choose your role and start your journey with ITCONNECT</p>
-            
-            <div class="user-types">
-                <div class="user-type-card organizer">
-                    <div class="icon-wrapper">
-                        <span class="icon-briefcase"></span>
-                    </div>
-                    <h3>Organizer</h3>
-                    <p>
-                        Event organizers who can create and manage educational events, workshops, 
-                        and activities. Coordinate with participants, track attendance, and 
-                        deliver impactful learning experiences.
-                    </p>
-                    <a href="{% url 'register' %}?user_type=organizer" class="register-btn">
-                        <span class="icon-arrow-right"></span> Register as Organizer
-                    </a>
-                </div>
-                
-                <div class="user-type-card student">
-                    <div class="icon-wrapper">
-                        <span class="icon-user-graduate"></span>
-                    </div>
-                    <h3>Student</h3>
-                    <p>
-                        Students who can participate in events, join study groups, access 
-                        educational resources, collaborate on projects, and track their 
-                        academic progress in a supportive learning environment.
-                    </p>
-                    <a href="{% url 'register' %}?user_type=student" class="register-btn">
-                        <span class="icon-arrow-right"></span> Register as Student
-                    </a>
-                </div>
-            </div>
-        </section>
+        <div class="role-card">
+            <h3>Student</h3>
+            <p>Register with student ID, grade level, major, and graduation year to join as a student member.</p>
+            <a class="button button-primary" href="{% url 'register' %}?user_type=student">Register as Student</a>
+        </div>
     </div>
-    
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2024 ITCONNECT. Empowering education through technology.</p>
-    </footer>
-    
-    <script>
-        // Create animated particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-        
-        // Initialize particles on page load
-        document.addEventListener('DOMContentLoaded', createParticles);
-        
-        // Add smooth scroll behavior
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+</section>
+{% endblock %}

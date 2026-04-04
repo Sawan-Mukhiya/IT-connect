@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .event-detail-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .event-header {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .event-image-large {
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+        }
+
+        .event-image-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-info {
+            padding: 32px;
+        }
+
+        .event-title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .event-title-section h1 {
+            font-size: 2.5rem;
+            color: #1f2937;
+            margin: 0;
+            flex: 1;
+        }
+
+        .event-type-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-left: 16px;
+        }
+
+        .event-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+        }
+
+        .meta-item i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .event-description {
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        .registration-section {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .registration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .registration-header h3 {
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .seats-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .registration-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .registration-status {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status-registered {
+            background: #ecfdf5;
+            color: #166534;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-closed {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .organizer-info {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-top: 24px;
+        }
+
+        .organizer-info h3 {
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .organizer-details {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .organizer-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .organizer-text h4 {
+            margin: 0 0 4px 0;
+            color: #1f2937;
+        }
+
+        .organizer-text p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .cancellation-form {
+            margin-top: 16px;
+            padding: 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+        }
+
+        .cancellation-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .event-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .event-type-badge {
+                margin-left: 0;
+                margin-top: 12px;
+            }
+
+            .event-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .registration-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="event-detail-container">
+    <!-- Event Header -->
+    <div class="event-header">
+        <div class="event-image-large">
+            {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}">
+            {% else %}
+                <span>{{ event.get_event_type_display.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="event-info">
+            <div class="event-title-section">
+                <h1>{{ event.title }}</h1>
+                <span class="event-type-badge">{{ event.get_event_type_display }}</span>
+            </div>
+
+            <div class="event-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>{{ event.date|date:"l, F j, Y" }} at {{ event.date|time:"g:i A" }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Registration deadline: {{ event.deadline|date:"M j, Y g:i A" }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-tag"></i>
+                    <span>{{ event.get_category_display }}</span>
+                </div>
+                {% if event.location %}
+                    <div class="meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ event.location }}</span>
+                    </div>
+                {% endif %}
+                <div class="meta-item">
+                    <i class="fas fa-users"></i>
+                    <span>{{ event.available_seats }}/{{ event.seats }} seats available</span>
+                </div>
+            </div>
+
+            <div class="event-description">
+                {{ event.description }}
+            </div>
+
+            <!-- Registration Section -->
+            <div class="registration-section">
+                <div class="registration-header">
+                    <h3>Registration</h3>
+                    <div class="seats-info">
+                        {% if event.is_paid %}
+                            <strong>${{ event.price }}</strong>
+                        {% else %}
+                            <strong>Free Event</strong>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if is_registered %}
+                    <div class="registration-status status-registered">
+                        <i class="fas fa-check-circle"></i>
+                        You are registered for this event!
+                        {% if user_registration.registered_at %}
+                            (Registered on {{ user_registration.registered_at|date:"M j, Y" }})
+                        {% endif %}
+                    </div>
+
+                    {% if registration_open %}
+                        <div class="registration-actions">
+                            <form method="post" action="{% url 'events:event_unregister' event.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-danger" onclick="showCancellationForm()">
+                                    Cancel Registration
+                                </button>
+                            </form>
+                        </div>
+
+                        <div id="cancellation-form" class="cancellation-form" style="display: none;">
+                            <p><strong>Are you sure you want to cancel your registration?</strong></p>
+                            <form method="post" action="{% url 'events:event_unregister' event.id %}">
+                                {% csrf_token %}
+                                <label for="cancellation_reason">Reason for cancellation (optional):</label>
+                                <textarea name="cancellation_reason" id="cancellation_reason" rows="3"
+                                          placeholder="Please let us know why you're cancelling..."></textarea>
+                                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideCancellationForm()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p style="color: #6b7280; margin-top: 12px;">
+                            Registration is closed. Contact the organizer if you need to make changes.
+                        </p>
+                    {% endif %}
+                {% else %}
+                    {% if registration_open %}
+                        <div class="registration-actions">
+                            <form method="post" action="{% url 'events:event_register' event.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    {% if event.is_paid %}
+                                        Register for ${{ event.price }}
+                                    {% else %}
+                                        Register for Free
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="registration-status status-closed">
+                            <i class="fas fa-times-circle"></i>
+                            Registration is closed
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Organizer Info -->
+    <div class="organizer-info">
+        <h3>Event Organizer</h3>
+        <div class="organizer-details">
+            <div class="organizer-avatar">
+                {{ event.organizer.first_name.0|upper }}{{ event.organizer.last_name.0|upper }}
+            </div>
+            <div class="organizer-text">
+                <h4>{{ event.organizer.get_full_name }}</h4>
+                <p>@{{ event.organizer.username }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCancellationForm() {
+    document.getElementById('cancellation-form').style.display = 'block';
+}
+
+function hideCancellationForm() {
+    document.getElementById('cancellation-form').style.display = 'none';
+}
+</script>
+{% endblock %}

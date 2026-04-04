@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - ITCONNECT{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .dashboard-header h1 {
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 24px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 0 24px 24px 24px;
+        }
+
+        .event-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-image {
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .event-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-content {
+            padding: 20px;
+        }
+
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .event-meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .event-meta-item i {
+            margin-right: 6px;
+            width: 16px;
+        }
+
+        .event-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .status-registered {
+            background: #ecfdf5;
+            color: #166534;
+        }
+
+        .status-upcoming {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .btn-view {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #4b5563;
+        }
+
+        .btn-cancel {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #b91c1c;
+        }
+
+        .interests-section {
+            padding: 24px;
+        }
+
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .interest-tag {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .interest-tag.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .recommendations-section {
+            padding: 24px;
+        }
+
+        .recommendations-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .recommendation-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .recommendation-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-reason {
+            font-size: 0.875rem;
+            color: #059669;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px 0;
+            color: #374151;
+        }
+
+        .empty-state p {
+            margin: 0 0 24px 0;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .section-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .event-actions {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>Student Dashboard</h1>
+        <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+            <i class="fas fa-search"></i>
+            Browse Events
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Registered Events</h3>
+            <p class="stat-value">{{ registered_events|length }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Upcoming Events</h3>
+            <p class="stat-value">{{ upcoming_events|length }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Completed Events</h3>
+            <p class="stat-value">{{ completed_events|length }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Total Spent</h3>
+            <p class="stat-value">${{ total_spent|floatformat:2 }}</p>
+        </div>
+    </div>
+
+    <!-- My Events -->
+    <div class="section">
+        <div class="section-header">
+            <h2>My Events</h2>
+            <div class="section-actions">
+                <a href="{% url 'events:event_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i>
+                    Find More Events
+                </a>
+            </div>
+        </div>
+
+        {% if registered_events %}
+            <div class="events-grid">
+                {% for registration in registered_events %}
+                    <div class="event-card">
+                        <div class="event-image">
+                            {% if registration.event.image %}
+                                <img src="{{ registration.event.image.url }}" alt="{{ registration.event.title }}">
+                            {% else %}
+                                <span>{{ registration.event.get_event_type_display.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-content">
+                            <h3 class="event-title">{{ registration.event.title }}</h3>
+
+                            <div class="event-meta">
+                                <div class="event-meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ registration.event.date|date:"M j, Y g:i A" }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <i class="fas fa-tag"></i>
+                                    {{ registration.event.get_category_display }}
+                                </div>
+                                {% if registration.event.location %}
+                                    <div class="event-meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ registration.event.location }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if registration.event.date > now %}
+                                <span class="event-status status-upcoming">Upcoming</span>
+                            {% elif registration.event.date < now %}
+                                <span class="event-status status-completed">Completed</span>
+                            {% else %}
+                                <span class="event-status status-registered">Registered</span>
+                            {% endif %}
+
+                            <div class="event-actions">
+                                <a href="{% url 'events:event_detail' registration.event.id %}" class="btn btn-small btn-view">
+                                    View Details
+                                </a>
+                                {% if registration.event.date > now %}
+                                    <form method="post" action="{% url 'events:event_unregister' registration.event.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-small btn-cancel"
+                                                onclick="return confirm('Are you sure you want to cancel your registration?')">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No registered events yet</h3>
+                <p>Start exploring events and register for ones that interest you!</p>
+                <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Browse Events
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Interests Section -->
+    <div class="section">
+        <div class="section-header">
+            <h2>My Interests</h2>
+            <div class="section-actions">
+                <a href="{% url 'events:update_interests' %}" class="btn btn-secondary">
+                    <i class="fas fa-edit"></i>
+                    Update Interests
+                </a>
+            </div>
+        </div>
+
+        <div class="interests-section">
+            {% if user_interests %}
+                <div class="interests-grid">
+                    {% for interest in user_interests %}
+                        <span class="interest-tag selected">{{ interest.interest.name }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No interests selected</h3>
+                    <p>Update your interests to get personalized event recommendations!</p>
+                    <a href="{% url 'events:update_interests' %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Set Interests
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="section">
+        <div class="section-header">
+            <h2>Recommended for You</h2>
+        </div>
+
+        <div class="recommendations-section">
+            <div class="recommendations-list">
+                {% for recommendation in recommendations %}
+                    <div class="recommendation-card">
+                        <h3 class="recommendation-title">{{ recommendation.event.title }}</h3>
+                        <div class="recommendation-meta">
+                            {{ recommendation.event.date|date:"M j, Y g:i A" }} • {{ recommendation.event.get_category_display }}
+                            {% if recommendation.event.location %} • {{ recommendation.event.location }}{% endif %}
+                        </div>
+                        <div class="recommendation-reason">
+                            Recommended because: {{ recommendation.reason }}
+                        </div>
+                        <a href="{% url 'events:event_detail' recommendation.event.id %}" class="btn btn-primary">
+                            View Event
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
