@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ team.team_name }} — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    {% if messages %}
+    <div class="ts-messages">
+        {% for message in messages %}
+        <div class="ts-message ts-message--{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="ts-detail-header">
+        <div>
+            <h1>{{ team.team_name }}</h1>
+            <p class="ts-detail-sub">Led by <strong>{{ team.team_lead.username }}</strong> · Created {{ team.created_at|date:"M j, Y" }}</p>
+        </div>
+        <div class="ts-detail-actions">
+            {% if is_leader %}
+            <a href="{% url 'teams:edit_team' team.id %}" class="ts-btn ts-btn--ghost ts-btn--sm">Edit</a>
+            <a href="{% url 'teams:delete_team' team.id %}" class="ts-btn ts-btn--danger ts-btn--sm">Delete</a>
+            {% elif is_member %}
+            <form method="post" action="{% url 'teams:leave_team' team.id %}" style="display:inline;" onsubmit="return confirm('Leave this team?');">
+                {% csrf_token %}
+                <button type="submit" class="ts-btn ts-btn--ghost ts-btn--sm">Leave team</button>
+            </form>
+            {% elif can_join %}
+            <button type="button" class="ts-btn ts-btn--success ts-btn--sm" data-open-dialog="dlg-join">Request to join</button>
+            {% elif pending_request %}
+            <button type="button" class="ts-btn ts-btn--ghost ts-btn--sm" disabled>Request pending</button>
+            {% elif pending_invitation %}
+            <a href="{% url 'teams:accept_invitation' pending_invitation.id %}" class="ts-btn ts-btn--success ts-btn--sm">Accept invite</a>
+            <a href="{% url 'teams:reject_invitation' pending_invitation.id %}" class="ts-btn ts-btn--danger ts-btn--sm">Decline</a>
+            {% elif team.is_full %}
+            <button type="button" class="ts-btn ts-btn--ghost ts-btn--sm" disabled>Team full</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="ts-layout">
+        <div>
+            <div class="ts-card" style="margin-bottom:24px;">
+                <div class="ts-card__body">
+                    <h2 style="font-size:1.1rem;font-weight:700;margin:0 0 14px;">About</h2>
+                    <div class="ts-muted-block">{{ team.description|default:"No description yet."|linebreaks }}</div>
+                    <hr class="ts-divider">
+                    <div class="ts-stat-row">
+                        <div>
+                            <strong>{{ team.event.title }}</strong>
+                            <small>Event</small>
+                        </div>
+                        <div>
+                            <strong>{{ team.get_current_member_count }} / {{ team.max_members }}</strong>
+                            <small>Members</small>
+                        </div>
+                        <div>
+                            <strong>{{ team.spots_remaining }}</strong>
+                            <small>Open spots</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ts-card">
+                <div class="ts-card-header-bar">
+                    <h2>Members ({{ team.members.count }} / {{ team.max_members }})</h2>
+                    {% if is_leader %}
+                    <button type="button" class="ts-btn ts-btn--primary ts-btn--sm" data-open-dialog="dlg-invite">Invite</button>
+                    {% endif %}
+                </div>
+                <div class="ts-card__body" style="padding-top:8px;">
+                    <ul class="ts-list">
+                        {% for member in members %}
+                        <li class="ts-list-item">
+                            <div>
+                                <strong>{{ member.user.username }}</strong>
+                                {% if member.role == 'leader' %}
+                                <span class="ts-badge ts-badge--private" style="margin-left:8px;">Leader</span>
+                                {% endif %}
+                                <div class="ts-meta" style="margin-top:4px;">Joined {{ member.joined_at|date:"M j, Y" }}</div>
+                            </div>
+                            {% if is_leader and member.role != 'leader' %}
+                            <form method="post" action="{% url 'teams:remove_member' member.id %}" onsubmit="return confirm('Remove this member?');">
+                                {% csrf_token %}
+                                <button type="submit" class="ts-btn ts-btn--danger ts-btn--sm">Remove</button>
+                            </form>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="ts-meta">No members listed.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <aside>
+            <div class="ts-card" style="margin-bottom:20px;">
+                <div class="ts-card__body">
+                    <h2 style="font-size:1.05rem;font-weight:700;margin:0 0 14px;">Status</h2>
+                    <p class="ts-meta" style="margin-bottom:10px;">
+                        <strong>Visibility</strong><br>
+                        {% if team.visibility == 'public' %}
+                        <span class="ts-badge ts-badge--public">Public</span>
+                        {% else %}
+                        <span class="ts-badge ts-badge--private">Private</span>
+                        {% endif %}
+                    </p>
+                    <p class="ts-meta" style="margin-bottom:10px;">
+                        <strong>Team status</strong><br>
+                        <span class="ts-badge ts-badge--open">{{ team.get_status_display }}</span>
+                    </p>
+                    {% if team.team_code %}
+                    <p class="ts-meta" style="margin:0 0 6px;"><strong>Team code</strong></p>
+                    <div class="ts-code-row">
+                        <input type="text" class="form-control" id="team-code" value="{{ team.team_code }}" readonly aria-label="Team code">
+                        <button type="button" class="ts-btn ts-btn--ghost ts-btn--sm" id="copy-code" data-code="{{ team.team_code }}">Copy</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if is_leader and pending_join_requests %}
+            <div class="ts-card">
+                <div class="ts-card-header-bar">
+                    <h2>Pending requests ({{ pending_join_requests.count }})</h2>
+                </div>
+                <div class="ts-card__body" style="padding-top:8px;">
+                    {% for jr in pending_join_requests %}
+                    <div class="ts-request-row" style="background:#fff;">
+                        <div>
+                            <strong>{{ jr.user.username }}</strong>
+                            <div class="ts-meta">{{ jr.requested_at|timesince }} ago</div>
+                        </div>
+                        <div class="ts-row-actions" style="margin-top:0;">
+                            <a href="{% url 'teams:accept_join_request' jr.id %}" class="ts-btn ts-btn--success ts-btn--sm">Accept</a>
+                            <button type="button" class="ts-btn ts-btn--danger ts-btn--sm" data-open-dialog="dlg-reject-{{ jr.id }}">Reject</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if pending_invitation %}
+            <div class="ts-card" style="border-color:rgba(52,211,153,0.35);">
+                <div class="ts-card__body">
+                    <h2 style="font-size:1.05rem;font-weight:700;margin:0 0 10px;">You’re invited</h2>
+                    <p class="ts-meta">Expires {{ pending_invitation.expires_at|date:"M j, Y g:i A" }}</p>
+                    <div class="ts-row-actions" style="flex-direction:column;align-items:stretch;">
+                        <a href="{% url 'teams:accept_invitation' pending_invitation.id %}" class="ts-btn ts-btn--success ts-btn--block">Accept</a>
+                        <a href="{% url 'teams:reject_invitation' pending_invitation.id %}" class="ts-btn ts-btn--danger ts-btn--block">Decline</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+
+{% if can_join %}
+<dialog class="ts-dialog" id="dlg-join">
+    <div class="ts-dialog__head">
+        <h3>Request to join</h3>
+    </div>
+    <form method="post" action="{% url 'teams:request_join' team.id %}">
+        {% csrf_token %}
+        <div class="ts-dialog__body">
+            <p class="ts-meta">Tell <strong>{{ team.team_lead.username }}</strong> why you’d like to join {{ team.team_name }}.</p>
+            <label class="ts-label" for="join-msg">Message (optional)</label>
+            <textarea class="form-control" id="join-msg" name="message" rows="4" placeholder="Skills, interests, availability…"></textarea>
+        </div>
+        <div class="ts-dialog__foot">
+            <button type="button" class="ts-btn ts-btn--ghost" data-close-dialog>Cancel</button>
+            <button type="submit" class="ts-btn ts-btn--primary">Send request</button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+{% if is_leader %}
+<dialog class="ts-dialog" id="dlg-invite">
+    <div class="ts-dialog__head">
+        <h3>Invite a student</h3>
+    </div>
+    <form method="post" action="{% url 'teams:invite_member' team.id %}">
+        {% csrf_token %}
+        <div class="ts-dialog__body">
+            <label class="ts-label" for="invite-user">Student</label>
+            <select class="form-control" id="invite-user" name="invited_user" required>
+                <option value="">Choose a student</option>
+                {% for user in available_students %}
+                <option value="{{ user.id }}">{{ user.username }} ({{ user.email }})</option>
+                {% endfor %}
+            </select>
+            <label class="ts-label" for="invite-msg" style="margin-top:14px;">Message (optional)</label>
+            <textarea class="form-control" id="invite-msg" name="message" rows="3" placeholder="Short invite note…"></textarea>
+        </div>
+        <div class="ts-dialog__foot">
+            <button type="button" class="ts-btn ts-btn--ghost" data-close-dialog>Cancel</button>
+            <button type="submit" class="ts-btn ts-btn--primary">Send invite</button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+{% for jr in pending_join_requests %}
+<dialog class="ts-dialog" id="dlg-reject-{{ jr.id }}">
+    <div class="ts-dialog__head">
+        <h3>Reject request</h3>
+    </div>
+    <form method="post" action="{% url 'teams:reject_join_request' jr.id %}">
+        {% csrf_token %}
+        <div class="ts-dialog__body">
+            <label class="ts-label" for="rej-{{ jr.id }}">Note (optional)</label>
+            <textarea class="form-control" id="rej-{{ jr.id }}" name="response_message" rows="3"></textarea>
+        </div>
+        <div class="ts-dialog__foot">
+            <button type="button" class="ts-btn ts-btn--ghost" data-close-dialog>Cancel</button>
+            <button type="submit" class="ts-btn ts-btn--danger-solid">Reject</button>
+        </div>
+    </form>
+</dialog>
+{% endfor %}
+
+<div class="ts-toast" id="ts-toast" role="status"></div>
+
+<script>
+(function () {
+    document.querySelectorAll('[data-open-dialog]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-open-dialog');
+            var el = document.getElementById(id);
+            if (el && typeof el.showModal === 'function') el.showModal();
+        });
+    });
+    document.querySelectorAll('[data-close-dialog]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var dlg = btn.closest('dialog');
+            if (dlg && typeof dlg.close === 'function') dlg.close();
+        });
+    });
+    var copyBtn = document.getElementById('copy-code');
+    var toast = document.getElementById('ts-toast');
+    if (copyBtn && toast) {
+        copyBtn.addEventListener('click', function () {
+            var code = copyBtn.getAttribute('data-code') || '';
+            function show() {
+                toast.textContent = 'Team code copied';
+                toast.classList.add('is-visible');
+                setTimeout(function () { toast.classList.remove('is-visible'); }, 2200);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(show).catch(function () {
+                    var inp = document.getElementById('team-code');
+                    if (inp) { inp.select(); document.execCommand('copy'); show(); }
+                });
+            } else {
+                var inp = document.getElementById('team-code');
+                if (inp) { inp.select(); document.execCommand('copy'); show(); }
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

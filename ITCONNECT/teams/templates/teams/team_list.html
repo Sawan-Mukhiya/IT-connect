@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse teams — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    {% if messages %}
+    <div class="ts-messages">
+        {% for message in messages %}
+        <div class="ts-message ts-message--{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="teams-toolbar">
+        <div class="teams-toolbar__title">
+            <h1>Find teams</h1>
+            <p>Discover hackathon squads and request to join.</p>
+        </div>
+        <div class="teams-toolbar__actions">
+            <a href="{% url 'teams:create_team' %}" class="ts-btn ts-btn--primary">Create team</a>
+            <a href="{% url 'teams:my_teams' %}" class="ts-btn ts-btn--ghost">My teams</a>
+            <a href="{% url 'teams:teams_home' %}" class="ts-btn ts-btn--ghost">Teams home</a>
+        </div>
+    </div>
+
+    <div class="ts-panel">
+        <form method="get" class="ts-filter-grid">
+            <div class="ts-field">
+                <label for="tl_search">Search</label>
+                <input type="text" class="ts-input" id="tl_search" name="search" placeholder="Team name…" value="{{ search_query }}">
+            </div>
+            <div class="ts-field">
+                <label for="tl_event">Event</label>
+                <select class="ts-select" id="tl_event" name="event" onchange="this.form.submit()">
+                    <option value="">All hackathons</option>
+                    {% for event in events %}
+                    <option value="{{ event.id }}" {% if request.GET.event == event.pk|stringformat:"s" %}selected{% endif %}>{{ event.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="ts-filter-actions">
+                <button type="submit" class="ts-btn ts-btn--primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+    {% if teams %}
+    <div class="ts-grid">
+        {% for team in teams %}
+        <article class="ts-card">
+            <div class="ts-card__body">
+                <div class="ts-card__head">
+                    <h2 class="ts-card__title"><a href="{% url 'teams:team_detail' team.id %}">{{ team.team_name }}</a></h2>
+                    {% if team.visibility == 'public' %}
+                    <span class="ts-badge ts-badge--public">Public</span>
+                    {% else %}
+                    <span class="ts-badge ts-badge--private">Private</span>
+                    {% endif %}
+                </div>
+                <p class="ts-meta">Lead · {{ team.team_lead.username }}</p>
+                <p class="ts-meta">{{ team.description|default:"No description yet."|truncatewords:20 }}</p>
+                <p class="ts-meta"><strong>Event</strong> · {{ team.event.title }}</p>
+                <div class="ts-progress ts-progress--labeled">
+                    {% widthratio team.members.count team.max_members 100 as percent %}
+                    <div class="ts-progress__track">
+                        <div class="ts-progress__bar" style="width: {{ percent }}%">{{ team.members.count }}/{{ team.max_members }}</div>
+                    </div>
+                </div>
+                <p style="margin-top:12px;">
+                    {% if team.is_full %}
+                    <span class="ts-badge ts-badge--full">Full</span>
+                    {% else %}
+                    <span class="ts-badge ts-badge--open">Open</span>
+                    {% endif %}
+                </p>
+                <div class="ts-row-actions">
+                    <a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--primary ts-btn--sm ts-btn--block">View team</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <ul class="ts-pagination">
+        {% if page_obj.has_previous %}
+        <li><a href="?page=1{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.event %}&event={{ request.GET.event|urlencode }}{% endif %}">First</a></li>
+        <li><a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.event %}&event={{ request.GET.event|urlencode }}{% endif %}">Prev</a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="{% if page_obj.number == num %}is-active{% endif %}">
+            {% if page_obj.number == num %}
+            <span>{{ num }}</span>
+            {% else %}
+            <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.event %}&event={{ request.GET.event|urlencode }}{% endif %}">{{ num }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.event %}&event={{ request.GET.event|urlencode }}{% endif %}">Next</a></li>
+        <li><a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if request.GET.event %}&event={{ request.GET.event|urlencode }}{% endif %}">Last</a></li>
+        {% endif %}
+    </ul>
+    {% endif %}
+
+    {% else %}
+    <div class="ts-empty">
+        <h3>No teams found</h3>
+        <p>Adjust filters or be the first to create a team for this hackathon.</p>
+        <a href="{% url 'teams:create_team' %}" class="ts-btn ts-btn--primary">Create a team</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

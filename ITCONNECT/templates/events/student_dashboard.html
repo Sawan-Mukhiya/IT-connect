@@ -233,33 +233,6 @@
             background: #b91c1c;
         }
 
-        .interests-section {
-            padding: 24px;
-        }
-
-        .interests-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .interest-tag {
-            background: #f3f4f6;
-            color: #374151;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-
-        .interest-tag.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-
         .recommendations-section {
             padding: 24px;
         }
@@ -357,10 +330,10 @@
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <h1>Student Dashboard</h1>
-        <a href="{% url 'events:event_list' %}" class="btn btn-primary">
-            <i class="fas fa-search"></i>
-            Browse Events
-        </a>
+        <div class="section-actions" style="flex-wrap: wrap;">
+            <a href="{% url 'accounts:student_profile' user.username %}" class="btn btn-secondary">My profile</a>
+            <a href="{% url 'events:event_list' %}" class="btn btn-primary">Browse events</a>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
@@ -382,7 +355,7 @@
 
         <div class="stat-card">
             <h3>Total Spent</h3>
-            <p class="stat-value">${{ total_spent|floatformat:2 }}</p>
+            <p class="stat-value">NPR {{ total_spent|floatformat:2 }}</p>
         </div>
     </div>
 
@@ -466,38 +439,6 @@
                 </a>
             </div>
         {% endif %}
-    </div>
-
-    <!-- Interests Section -->
-    <div class="section">
-        <div class="section-header">
-            <h2>My Interests</h2>
-            <div class="section-actions">
-                <a href="{% url 'events:update_interests' %}" class="btn btn-secondary">
-                    <i class="fas fa-edit"></i>
-                    Update Interests
-                </a>
-            </div>
-        </div>
-
-        <div class="interests-section">
-            {% if user_interests %}
-                <div class="interests-grid">
-                    {% for interest in user_interests %}
-                        <span class="interest-tag selected">{{ interest.interest.name }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <h3>No interests selected</h3>
-                    <p>Update your interests to get personalized event recommendations!</p>
-                    <a href="{% url 'events:update_interests' %}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i>
-                        Set Interests
-                    </a>
-                </div>
-            {% endif %}
-        </div>
     </div>
 
     <!-- Recommendations Section -->

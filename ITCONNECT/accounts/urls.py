@@ -13,4 +13,5 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('success/', views.registration_success, name='registration_success'),
+    path('profile/<str:username>/', views.StudentProfileView.as_view(), name='student_profile'),
 ]

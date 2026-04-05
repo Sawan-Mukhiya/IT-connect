@@ -378,7 +378,7 @@
                     <h3>Registration</h3>
                     <div class="seats-info">
                         {% if event.is_paid %}
-                            <strong>${{ event.price }}</strong>
+                            <strong>NPR {{ event.price }}</strong>
                         {% else %}
                             <strong>Free Event</strong>
                         {% endif %}
@@ -429,7 +429,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary">
                                     {% if event.is_paid %}
-                                        Register for ${{ event.price }}
+                                        Register for NPR {{ event.price }}
                                     {% else %}
                                         Register for Free
                                     {% endif %}

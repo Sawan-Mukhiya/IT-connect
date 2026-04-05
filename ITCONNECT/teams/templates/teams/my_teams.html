@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}My teams — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    {% if messages %}
+    <div class="ts-messages">
+        {% for message in messages %}
+        <div class="ts-message ts-message--{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="teams-toolbar">
+        <div class="teams-toolbar__title">
+            <h1>My teams</h1>
+            <p>Squads you lead, memberships, and open invitations.</p>
+        </div>
+        <div class="teams-toolbar__actions">
+            <a href="{% url 'teams:teams_home' %}" class="ts-btn ts-btn--ghost">Teams home</a>
+            <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--ghost">Browse</a>
+            <a href="{% url 'teams:create_team' %}" class="ts-btn ts-btn--primary">Create team</a>
+        </div>
+    </div>
+
+    {% if led_teams %}
+    <h2 class="ts-section-title">Teams you lead</h2>
+    <div class="ts-grid" style="margin-bottom:40px;">
+        {% for team in led_teams %}
+        <article class="ts-card">
+            <div class="ts-card__body">
+                <div class="ts-card__head">
+                    <h3 class="ts-card__title"><a href="{% url 'teams:team_detail' team.id %}">{{ team.team_name }}</a></h3>
+                    <span class="ts-badge ts-badge--lead">Leader</span>
+                </div>
+                <p class="ts-meta">{{ team.event.title }}</p>
+                <p class="ts-meta">{{ team.members.count }} / {{ team.max_members }} members</p>
+                <div class="ts-progress">
+                    {% widthratio team.members.count team.max_members 100 as pct %}
+                    <div class="ts-progress__bar" style="width: {{ pct }}%"></div>
+                </div>
+                <div class="ts-row-actions">
+                    <a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--primary ts-btn--sm">View</a>
+                    <a href="{% url 'teams:edit_team' team.id %}" class="ts-btn ts-btn--ghost ts-btn--sm">Edit</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if teams %}
+    <h2 class="ts-section-title">Your memberships</h2>
+    <div class="ts-grid" style="margin-bottom:40px;">
+        {% for team in teams %}
+        <article class="ts-card">
+            <div class="ts-card__body">
+                <h3 class="ts-card__title"><a href="{% url 'teams:team_detail' team.id %}">{{ team.team_name }}</a></h3>
+                <p class="ts-meta">Lead · {{ team.team_lead.username }}</p>
+                <p class="ts-meta">{{ team.event.title }}</p>
+                <a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--primary ts-btn--sm ts-btn--block">Open team</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if pending_requests %}
+    <h2 class="ts-section-title">Join requests to review</h2>
+    <div class="ts-table-wrap" style="margin-bottom:40px;">
+        <table class="ts-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Team</th>
+                    <th>Message</th>
+                    <th>When</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td><strong>{{ req.user.username }}</strong></td>
+                    <td>{{ req.team.team_name }}</td>
+                    <td class="ts-meta">{{ req.message|default:"—"|truncatewords:8 }}</td>
+                    <td class="ts-meta">{{ req.requested_at|timesince }} ago</td>
+                    <td>
+                        <a href="{% url 'teams:accept_join_request' req.id %}" class="ts-btn ts-btn--success ts-btn--sm">Accept</a>
+                        <a href="{% url 'teams:team_detail' req.team.id %}" class="ts-btn ts-btn--ghost ts-btn--sm">Manage</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if pending_invitations %}
+    <h2 class="ts-section-title">Invitations</h2>
+    <div class="ts-grid" style="margin-bottom:24px;">
+        {% for invite in pending_invitations %}
+        <article class="ts-card">
+            <div class="ts-card__body">
+                <h3 class="ts-card__title"><a href="{% url 'teams:team_detail' invite.team.id %}">{{ invite.team.team_name }}</a></h3>
+                <p class="ts-meta">From {{ invite.invited_by.username }}</p>
+                <p class="ts-meta">{{ invite.team.event.title }}</p>
+                {% if invite.message %}
+                <p class="ts-meta" style="margin-top:10px;">“{{ invite.message|truncatewords:24 }}”</p>
+                {% endif %}
+                <p class="ts-meta">Expires {{ invite.expires_at|date:"M j, Y" }}</p>
+                <div class="ts-row-actions" style="flex-direction:column;align-items:stretch;">
+                    <a href="{% url 'teams:accept_invitation' invite.id %}" class="ts-btn ts-btn--success ts-btn--sm ts-btn--block">Accept</a>
+                    <a href="{% url 'teams:reject_invitation' invite.id %}" class="ts-btn ts-btn--danger ts-btn--sm ts-btn--block">Decline</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not teams and not led_teams and not pending_requests and not pending_invitations %}
+    <div class="ts-empty">
+        <h3>No team activity yet</h3>
+        <p>Join a hackathon team or create your own to get started.</p>
+        <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--primary">Browse teams</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

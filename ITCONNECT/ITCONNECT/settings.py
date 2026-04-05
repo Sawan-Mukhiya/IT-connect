@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'events',
+    'teams',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,13 @@ AUTH_USER_MODEL = 'accounts.User'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Email (interest-match notifications, etc.)
+# Development: prints to console. For production, set EMAIL_* and SITE_BASE_URL.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'ITCONNECT <noreply@itconnect.local>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+# Absolute site URL for links in emails (no trailing slash), e.g. 'https://yourdomain.com'
+SITE_BASE_URL = ''
+# If True, mail errors are swallowed (useful when SMTP is not configured)
+EMAIL_FAIL_SILENTLY = DEBUG

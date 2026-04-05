@@ -123,6 +123,93 @@ class StudentInterest(models.Model):
 
 
 # ============================================================================
+# STUDENT SKILLS
+# ============================================================================
+
+class StudentSkill(models.Model):
+    """Track student technical and soft skills"""
+    SKILL_LEVEL_CHOICES = (
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+        ('expert', 'Expert'),
+    )
+
+    SKILL_CHOICES = (
+        ('python', 'Python'),
+        ('javascript', 'JavaScript'),
+        ('java', 'Java'),
+        ('csharp', 'C#'),
+        ('cpp', 'C++'),
+        ('react', 'React'),
+        ('nodejs', 'Node.js'),
+        ('django', 'Django'),
+        ('sql', 'SQL'),
+        ('mongodb', 'MongoDB'),
+        ('docker', 'Docker'),
+        ('kubernetes', 'Kubernetes'),
+        ('aws', 'Amazon AWS'),
+        ('azure', 'Microsoft Azure'),
+        ('gcp', 'Google Cloud'),
+        ('git', 'Git'),
+        ('agile', 'Agile'),
+        ('problem_solving', 'Problem Solving'),
+        ('communication', 'Communication'),
+        ('teamwork', 'Teamwork'),
+        ('leadership', 'Leadership'),
+        ('project_management', 'Project Management'),
+        ('other', 'Other'),
+    )
+
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='skills')
+    skill = models.CharField(max_length=50, choices=SKILL_CHOICES)
+    level = models.CharField(max_length=20, choices=SKILL_LEVEL_CHOICES, default='beginner')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'skill')
+        indexes = [
+            models.Index(fields=['student', 'level']),
+        ]
+
+    def __str__(self):
+        return f"{self.student.username} - {self.get_skill_display()} ({self.get_level_display()})"
+
+
+# ============================================================================
+# STUDENT ACHIEVEMENTS & BADGES
+# ============================================================================
+
+class StudentAchievement(models.Model):
+    """Track student achievements, badges, and certifications"""
+    ACHIEVEMENT_TYPE_CHOICES = (
+        ('badge', 'Badge'),
+        ('certificate', 'Certificate'),
+        ('award', 'Award'),
+        ('participation', 'Participation'),
+    )
+
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='achievements')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    achievement_type = models.CharField(max_length=20, choices=ACHIEVEMENT_TYPE_CHOICES, default='badge')
+    icon = models.CharField(max_length=100, blank=True, help_text="Font Awesome icon name, e.g., trophy, star")
+    earned_at = models.DateTimeField(auto_now_add=True)
+    event = models.ForeignKey('Event', on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name='student_achievements')
+    
+    class Meta:
+        ordering = ['-earned_at']
+        indexes = [
+            models.Index(fields=['student', 'achievement_type']),
+            models.Index(fields=['earned_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.student.username} - {self.title}"
+
+
+# ============================================================================
 # EVENT MODEL
 # ============================================================================
 
@@ -243,12 +330,20 @@ class Team(models.Model):
         ('confirmed', 'Confirmed'),
         ('completed', 'Completed'),
     )
+    
+    VISIBILITY_CHOICES = (
+        ('public', 'Public'),
+        ('private', 'Private'),
+    )
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='teams',
                              limit_choices_to={'event_type': 'hackathon'})
     team_name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True, help_text="Team description and goals")
     team_lead = models.ForeignKey(User, on_delete=models.CASCADE, related_name='led_teams')
     max_members = models.IntegerField(validators=[MinValueValidator(2)], default=4)
+    team_code = models.CharField(max_length=12, unique=True, blank=True, null=True, help_text="Unique code for joining team")
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='public')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -258,10 +353,23 @@ class Team(models.Model):
         indexes = [
             models.Index(fields=['event', 'status']),
             models.Index(fields=['team_lead']),
+            models.Index(fields=['team_code']),
+            models.Index(fields=['visibility']),
         ]
 
     def __str__(self):
         return f"{self.team_name} - {self.event.title}"
+    
+    def get_current_member_count(self):
+        """Get current number of members in team"""
+        return self.members.count()
+    
+    def is_full(self):
+        """Check if team is full"""
+        return self.get_current_member_count() >= self.max_members
+
+    def spots_remaining(self):
+        return max(0, self.max_members - self.get_current_member_count())
 
 
 class TeamMember(models.Model):
@@ -285,6 +393,65 @@ class TeamMember(models.Model):
 
     def __str__(self):
         return f"{self.user.username} in {self.team.team_name} ({self.get_role_display()})"
+
+
+class TeamJoinRequest(models.Model):
+    """Request to join a team"""
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn'),
+    )
+    
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='join_requests')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_join_requests')
+    message = models.TextField(blank=True, null=True, help_text="Why do you want to join this team?")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(blank=True, null=True)
+    response_message = models.TextField(blank=True, null=True, help_text="Rejection reason if rejected")
+    
+    class Meta:
+        unique_together = ('team', 'user')
+        indexes = [
+            models.Index(fields=['team', 'status']),
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} join request for {self.team.team_name} ({self.status})"
+
+
+class TeamInvitation(models.Model):
+    """Invitation to join a team"""
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('cancelled', 'Cancelled'),
+    )
+    
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='invitations')
+    invited_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_invitations')
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_team_invitations')
+    message = models.TextField(blank=True, null=True, help_text="Invitation message")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(blank=True, null=True)
+    expires_at = models.DateTimeField(help_text="Invitation expires after 7 days")
+    
+    class Meta:
+        unique_together = ('team', 'invited_user')
+        indexes = [
+            models.Index(fields=['team', 'status']),
+            models.Index(fields=['invited_user', 'status']),
+            models.Index(fields=['status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.invited_user.username} invited to {self.team.team_name} ({self.status})"
 
 
 # ============================================================================
@@ -345,8 +512,14 @@ class Notification(models.Model):
         ('registration_cancelled', 'Registration Cancelled'),
         ('payment_confirmed', 'Payment Confirmed'),
         ('payment_failed', 'Payment Failed'),
-        ('team_accepted', 'Team Accepted'),
+        ('team_join_request', 'Team Join Request'),
+        ('team_join_request_accepted', 'Team Join Request Accepted'),
+        ('team_join_request_rejected', 'Team Join Request Rejected'),
         ('team_invitation', 'Team Invitation'),
+        ('team_invitation_accepted', 'Team Invitation Accepted'),
+        ('team_invitation_rejected', 'Team Invitation Rejected'),
+        ('team_member_joined', 'Team Member Joined'),
+        ('team_member_left', 'Team Member Left'),
         ('event_reminder', 'Event Reminder'),
         ('promotion', 'Promotion'),
         ('recommendation', 'Event Recommendation'),

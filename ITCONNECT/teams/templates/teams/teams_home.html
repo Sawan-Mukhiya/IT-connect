@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    {% if messages %}
+    <div class="ts-messages">
+        {% for message in messages %}
+        <div class="ts-message ts-message--{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <header class="teams-hero">
+        <h1>Hackathon teams</h1>
+        <p>Find collaborators, lead a squad, and ship something great at your next hackathon.</p>
+        <div class="teams-hero__actions">
+            <a href="{% url 'teams:create_team' %}" class="ts-btn ts-btn--primary">Create team</a>
+            <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--ghost">Browse all</a>
+        </div>
+    </header>
+
+    <div class="ts-tabs" role="tablist">
+        <button type="button" class="ts-tab ts-tab--active" id="tab-find" role="tab" aria-selected="true" aria-controls="panel-find" data-ts-tab="find">Find teams</button>
+        <button type="button" class="ts-tab" id="tab-mine" role="tab" aria-selected="false" aria-controls="panel-mine" data-ts-tab="mine">
+            My teams
+            {% if user_teams.count > 0 %}
+            <span class="ts-tab-count">{{ user_teams.count }}</span>
+            {% endif %}
+        </button>
+    </div>
+
+    <div id="panel-find" class="ts-tab-panel" role="tabpanel" aria-labelledby="tab-find">
+        <div class="ts-panel">
+            <form method="get" class="ts-filter-grid">
+                <div class="ts-field">
+                    <label for="id_search">Search teams</label>
+                    <input type="text" class="ts-input" id="id_search" name="search" placeholder="Search by team name…" value="{{ search_query }}">
+                </div>
+                <div class="ts-field">
+                    <label for="id_event">Hackathon</label>
+                    <select class="ts-select" id="id_event" name="event">
+                        <option value="">All events</option>
+                        {% for event in events %}
+                        <option value="{{ event.id }}" {% if request.GET.event == event.pk|stringformat:"s" %}selected{% endif %}>{{ event.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ts-filter-actions">
+                    <button type="submit" class="ts-btn ts-btn--primary">Apply</button>
+                </div>
+            </form>
+        </div>
+
+        {% if public_teams %}
+        <div class="ts-grid ts-grid--2">
+            {% for team in public_teams %}
+            <article class="ts-card">
+                <div class="ts-card__body">
+                    <div class="ts-card__head">
+                        <h2 class="ts-card__title"><a href="{% url 'teams:team_detail' team.pk %}">{{ team.team_name }}</a></h2>
+                        <span class="ts-badge ts-badge--public">Public</span>
+                    </div>
+                    <p class="ts-meta">Led by {{ team.team_lead.username }}</p>
+                    <p class="ts-meta">{{ team.event.title }}</p>
+                    {% if team.description %}
+                    <p class="ts-meta">{{ team.description|truncatewords:18 }}</p>
+                    {% endif %}
+                    <div>
+                        <span class="ts-meta" style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                            <span>Members</span>
+                            <strong>{{ team.get_current_member_count }} / {{ team.max_members }}</strong>
+                        </span>
+                        <div class="ts-progress">
+                            {% widthratio team.get_current_member_count team.max_members 100 as progress %}
+                            <div class="ts-progress__bar" style="width: {{ progress }}%"></div>
+                        </div>
+                    </div>
+                    <div class="ts-row-actions">
+                        <a href="{% url 'teams:team_detail' team.pk %}" class="ts-btn ts-btn--primary ts-btn--sm ts-btn--block">View team</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <p class="ts-center" style="margin-top:28px;">
+            <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--ghost">See full directory →</a>
+        </p>
+        {% else %}
+        <div class="ts-empty">
+            <h3>No teams match</h3>
+            <p>Try another search or filter, or create the first team for an upcoming hackathon.</p>
+            <a href="{% url 'teams:create_team' %}" class="ts-btn ts-btn--primary">Create team</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="panel-mine" class="ts-tab-panel ts-hidden" role="tabpanel" aria-labelledby="tab-mine" hidden>
+        {% if led_teams or pending_requests or pending_invitations or user_teams %}
+            {% if led_teams %}
+            <h2 class="ts-section-title"><span aria-hidden="true">★</span> Teams you lead</h2>
+            <div class="ts-grid ts-grid--2" style="margin-bottom:36px;">
+                {% for team in led_teams %}
+                <article class="ts-card">
+                    <div class="ts-card__body">
+                        <div class="ts-card__head">
+                            <h3 class="ts-card__title"><a href="{% url 'teams:team_detail' team.pk %}">{{ team.team_name }}</a></h3>
+                            <span class="ts-badge ts-badge--lead">Leader</span>
+                        </div>
+                        <p class="ts-meta">{{ team.event.title }}</p>
+                        <p class="ts-meta">{{ team.get_current_member_count }} / {{ team.max_members }} members</p>
+                        <div class="ts-row-actions">
+                            <a href="{% url 'teams:team_detail' team.pk %}" class="ts-btn ts-btn--ghost ts-btn--sm">View</a>
+                            <a href="{% url 'teams:edit_team' team.pk %}" class="ts-btn ts-btn--primary ts-btn--sm">Edit</a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if pending_requests %}
+            <h2 class="ts-section-title">Pending join requests <span class="ts-badge ts-badge--full">{{ pending_requests.count }}</span></h2>
+            {% for req in pending_requests %}
+            <div class="ts-request-row">
+                <div>
+                    <strong>{{ req.user.username }}</strong> wants to join
+                    <a href="{% url 'teams:team_detail' req.team.pk %}">{{ req.team.team_name }}</a>
+                    {% if req.message %}
+                    <p class="ts-meta" style="margin-top:8px;">{{ req.message }}</p>
+                    {% endif %}
+                </div>
+                <div class="ts-row-actions" style="margin-top:0;">
+                    <a href="{% url 'teams:accept_join_request' req.id %}" class="ts-btn ts-btn--success ts-btn--sm">Accept</a>
+                    <button type="button" class="ts-btn ts-btn--danger ts-btn--sm" data-open-dialog="dlg-reject-{{ req.id }}">Reject</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if pending_invitations %}
+            <h2 class="ts-section-title" style="margin-top:32px;">Invitations for you <span class="ts-badge ts-badge--private">{{ pending_invitations.count }}</span></h2>
+            {% for invite in pending_invitations %}
+            <div class="ts-request-row">
+                <div>
+                    <strong>{{ invite.invited_by.username }}</strong> invited you to
+                    <a href="{% url 'teams:team_detail' invite.team.pk %}">{{ invite.team.team_name }}</a>
+                    <p class="ts-meta" style="margin-top:6px;">Expires {{ invite.expires_at|date:"M j" }}</p>
+                </div>
+                <div class="ts-row-actions" style="margin-top:0;">
+                    <a href="{% url 'teams:accept_invitation' invite.id %}" class="ts-btn ts-btn--success ts-btn--sm">Accept</a>
+                    <a href="{% url 'teams:reject_invitation' invite.id %}" class="ts-btn ts-btn--danger ts-btn--sm">Decline</a>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if user_teams %}
+            <h2 class="ts-section-title" style="margin-top:32px;">Teams you’ve joined</h2>
+            <div class="ts-grid ts-grid--2">
+                {% for team in user_teams %}
+                <article class="ts-card">
+                    <div class="ts-card__body">
+                        <h3 class="ts-card__title"><a href="{% url 'teams:team_detail' team.pk %}">{{ team.team_name }}</a></h3>
+                        <p class="ts-meta">Led by {{ team.team_lead.username }}</p>
+                        <p class="ts-meta">{{ team.members.count }} members · {{ team.event.title }}</p>
+                        <a href="{% url 'teams:team_detail' team.pk %}" class="ts-btn ts-btn--primary ts-btn--sm ts-btn--block">Open</a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="ts-empty">
+            <h3>You’re not on a team yet</h3>
+            <p>Browse public teams or start one for an approved hackathon.</p>
+            <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--primary">Find teams</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% for req in pending_requests %}
+<dialog class="ts-dialog" id="dlg-reject-{{ req.id }}">
+    <div class="ts-dialog__head">
+        <h3>Reject request</h3>
+    </div>
+    <form method="post" action="{% url 'teams:reject_join_request' req.id %}">
+        {% csrf_token %}
+        <div class="ts-dialog__body">
+            <label class="ts-label" for="reason-{{ req.id }}">Message to student (optional)</label>
+            <textarea class="form-control" id="reason-{{ req.id }}" name="response_message" rows="3" placeholder="Short reason…"></textarea>
+        </div>
+        <div class="ts-dialog__foot">
+            <button type="button" class="ts-btn ts-btn--ghost" data-close-dialog>Cancel</button>
+            <button type="submit" class="ts-btn ts-btn--danger-solid">Reject</button>
+        </div>
+    </form>
+</dialog>
+{% endfor %}
+
+<script>
+(function () {
+    var findBtn = document.getElementById('tab-find');
+    var mineBtn = document.getElementById('tab-mine');
+    var findPanel = document.getElementById('panel-find');
+    var minePanel = document.getElementById('panel-mine');
+    if (!findBtn || !mineBtn) return;
+
+    function showTab(which) {
+        var isFind = which === 'find';
+        findBtn.classList.toggle('ts-tab--active', isFind);
+        mineBtn.classList.toggle('ts-tab--active', !isFind);
+        findBtn.setAttribute('aria-selected', isFind ? 'true' : 'false');
+        mineBtn.setAttribute('aria-selected', isFind ? 'false' : 'true');
+        findPanel.classList.toggle('ts-hidden', !isFind);
+        minePanel.classList.toggle('ts-hidden', isFind);
+        findPanel.hidden = !isFind;
+        minePanel.hidden = isFind;
+    }
+
+    findBtn.addEventListener('click', function () { showTab('find'); });
+    mineBtn.addEventListener('click', function () { showTab('mine'); });
+
+    document.querySelectorAll('[data-open-dialog]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-open-dialog');
+            var el = document.getElementById(id);
+            if (el && typeof el.showModal === 'function') el.showModal();
+        });
+    });
+
+    document.querySelectorAll('[data-close-dialog]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var dlg = btn.closest('dialog');
+            if (dlg && typeof dlg.close === 'function') dlg.close();
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -8,7 +8,9 @@
     <h1>Your registration hub for admins, organizers, and students.</h1>
     <p>ITCONNECT helps every community member join with the right role and profile. Create your account, manage your event access, and keep your details organized.</p>
     <div class="hero-actions">
+        {% if not user.is_authenticated %}
         <a class="button button-primary" href="{% url 'accounts:choose_registration_type' %}">Register Now</a>
+        {% endif %}
         <a class="button button-secondary" href="{% url 'accounts:about' %}">Learn More</a>
     </div>
 </section>

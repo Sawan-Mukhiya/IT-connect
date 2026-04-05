@@ -3,6 +3,8 @@ Event Management Views
 Handles event listing, creation, registration, and organizer dashboard
 """
 
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,6 +12,9 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from accounts.models import Event, Registration, OrganizerAnalytics, StudentInterest, StudentRecommendation
 from .forms import EventForm
+from .interest_notifications import send_event_interest_match_emails
+
+logger = logging.getLogger(__name__)
 
 
 def event_list(request):
@@ -269,9 +274,6 @@ def student_dashboard(request):
         student=request.user
     ).select_related('recommended_event')[:5]
 
-    # Get student's interests for display
-    user_interests = StudentInterest.objects.filter(student=request.user)
-
     # Calculate total spent on events
     total_spent = 0
     for registration in registered_events:
@@ -283,7 +285,6 @@ def student_dashboard(request):
         'upcoming_events': upcoming_events,
         'completed_events': completed_events,
         'recommendations': recommendations,
-        'user_interests': user_interests,
         'total_spent': total_spent,
         'now': now,
     }
@@ -399,6 +400,7 @@ def approve_event(request, event_id):
         return redirect('accounts:home')
 
     event = get_object_or_404(Event, id=event_id)
+    was_approved = event.is_approved
 
     # Handle GET request - approve immediately
     if request.method == 'GET':
@@ -406,17 +408,37 @@ def approve_event(request, event_id):
         event.approved_by = request.user
         event.approved_at = timezone.now()
         event.save()
-        
+        if not was_approved and event.status == 'active':
+            try:
+                n = send_event_interest_match_emails(event)
+                if n:
+                    messages.info(request, f'Interest-match notifications sent to {n} student(s).')
+            except Exception:
+                logger.exception('Interest-match email failed for event %s', event.id)
+                messages.warning(
+                    request,
+                    'Event approved, but interest notifications could not be sent (check email settings).',
+                )
         messages.success(request, f'Event "{event.title}" has been approved!')
         return redirect('events:admin_pending_events')
-    
+
     # Handle POST request - show confirmation page
     if request.method == 'POST':
         event.is_approved = True
         event.approved_by = request.user
         event.approved_at = timezone.now()
         event.save()
-        
+        if not was_approved and event.status == 'active':
+            try:
+                n = send_event_interest_match_emails(event)
+                if n:
+                    messages.info(request, f'Interest-match notifications sent to {n} student(s).')
+            except Exception:
+                logger.exception('Interest-match email failed for event %s', event.id)
+                messages.warning(
+                    request,
+                    'Event approved, but interest notifications could not be sent (check email settings).',
+                )
         messages.success(request, f'Event "{event.title}" has been approved!')
         return redirect('events:admin_pending_events')
 

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete team — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    <div style="max-width:520px;margin:0 auto;">
+        <div class="ts-form-panel ts-center">
+            <div class="ts-delete-icon" aria-hidden="true">⚠</div>
+            <h1 style="margin-bottom:12px;">Delete this team?</h1>
+            <p class="ts-muted-block" style="margin-bottom:22px;">This cannot be undone. Members, pending requests, and invitations for this team will be cleared.</p>
+
+            <div class="ts-alert ts-alert--warn ts-center" style="text-align:center;margin-bottom:22px;">
+                You are about to remove <strong>{{ team.team_name }}</strong> from <strong>{{ team.event.title }}</strong> ({{ team.members.count }} members).
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="ts-form-actions">
+                    <a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--ghost ts-btn--block">Cancel</a>
+                    <button type="submit" class="ts-btn ts-btn--danger-solid ts-btn--block">Delete team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

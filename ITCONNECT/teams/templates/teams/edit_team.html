@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ team.team_name }} — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    <div style="max-width:640px;margin:0 auto;">
+        <p style="margin-bottom:20px;"><a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--ghost ts-btn--sm">← {{ team.team_name }}</a></p>
+
+        <div class="ts-form-panel">
+            <h1>Edit team</h1>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="ts-alert ts-alert--danger">
+                    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.team_name.id_for_label }}">Team name</label>
+                    {{ form.team_name }}
+                    {% if form.team_name.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.team_name.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.max_members.id_for_label }}">Max members</label>
+                    {{ form.max_members }}
+                    {% if form.max_members.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.max_members.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <span class="helptext">Current roster: {{ team.members.count }}.</span>
+                </div>
+
+                <div class="ts-field" style="margin-bottom:28px;">
+                    <label class="ts-label" for="{{ form.visibility.id_for_label }}">Visibility</label>
+                    {{ form.visibility }}
+                    {% if form.visibility.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.visibility.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-form-actions">
+                    <a href="{% url 'teams:team_detail' team.id %}" class="ts-btn ts-btn--ghost ts-btn--block">Cancel</a>
+                    <button type="submit" class="ts-btn ts-btn--primary ts-btn--block">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+Hi {{ user.first_name|default:user.username }},
+
+A new event on ITCONNECT matches topics you follow:
+
+  {{ event.title }}
+
+Type: {{ event.get_event_type_display }}
+Category: {{ event.get_category_display }}
+When: {{ event.date|date:"F j, Y, g:i A" }}{% if event.location %}
+Where: {{ event.location }}{% endif %}
+
+View details and register:
+{{ event_url }}
+
+— ITCONNECT

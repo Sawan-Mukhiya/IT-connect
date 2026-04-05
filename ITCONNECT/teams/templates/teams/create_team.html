@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Create team — ITCONNECT{% endblock %}
+
+{% block extra_head %}
+{% include 'teams/includes/teams_styles.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="teams-shell">
+    <div style="max-width:640px;margin:0 auto;">
+        <p style="margin-bottom:20px;"><a href="{% url 'teams:teams_home' %}" class="ts-btn ts-btn--ghost ts-btn--sm">← Teams</a></p>
+
+        <div class="ts-form-panel">
+            <h1>Create team</h1>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="ts-alert ts-alert--danger">
+                    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.team_name.id_for_label }}">Team name</label>
+                    {{ form.team_name }}
+                    {% if form.team_name.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.team_name.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <span class="helptext">3–50 characters, letters and numbers (spaces allowed).</span>
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.event.id_for_label }}">Hackathon</label>
+                    {{ form.event }}
+                    {% if form.event.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.event.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.max_members.id_for_label }}">Max members</label>
+                    {{ form.max_members }}
+                    {% if form.max_members.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.max_members.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <span class="helptext">Between 2 and 10.</span>
+                </div>
+
+                <div class="ts-field" style="margin-bottom:22px;">
+                    <label class="ts-label" for="{{ form.visibility.id_for_label }}">Visibility</label>
+                    {{ form.visibility }}
+                    {% if form.visibility.errors %}
+                    <div class="ts-alert ts-alert--danger" style="margin-top:10px;padding:10px 14px;">
+                        {% for error in form.visibility.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ts-alert ts-alert--info" style="margin-bottom:26px;">
+                    <strong>Public</strong> — others can discover and request to join.<br>
+                    <strong>Private</strong> — join by invitation.
+                </div>
+
+                <div class="ts-form-actions">
+                    <a href="{% url 'teams:team_list' %}" class="ts-btn ts-btn--ghost ts-btn--block">Cancel</a>
+                    <button type="submit" class="ts-btn ts-btn--primary ts-btn--block">Create team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

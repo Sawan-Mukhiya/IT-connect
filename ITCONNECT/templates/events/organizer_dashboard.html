@@ -349,7 +349,7 @@
 
         <div class="stat-card">
             <h3>Revenue</h3>
-            <p class="stat-value">${{ total_revenue|floatformat:2 }}</p>
+            <p class="stat-value">NPR {{ total_revenue|floatformat:2 }}</p>
         </div>
 
         <div class="stat-card">
@@ -399,7 +399,7 @@
                                 <td>{{ event.registrations.count }}/{{ event.seats }}</td>
                                 <td>
                                     {% if event.is_paid %}
-                                        ${{ event.total_revenue|floatformat:2 }}
+                                        NPR {{ event.total_revenue|floatformat:2 }}
                                     {% else %}
                                         Free
                                     {% endif %}
@@ -466,11 +466,11 @@
                 <ul class="analytics-list">
                     <li class="analytics-item">
                         <span class="analytics-label">Total Revenue</span>
-                        <span class="analytics-value">${{ analytics.total_revenue|floatformat:2 }}</span>
+                        <span class="analytics-value">NPR {{ analytics.total_revenue|floatformat:2 }}</span>
                     </li>
                     <li class="analytics-item">
                         <span class="analytics-label">Average Event Price</span>
-                        <span class="analytics-value">${{ analytics.avg_event_price|floatformat:2 }}</span>
+                        <span class="analytics-value">NPR {{ analytics.avg_event_price|floatformat:2 }}</span>
                     </li>
                     <li class="analytics-item">
                         <span class="analytics-label">Paid Events</span>

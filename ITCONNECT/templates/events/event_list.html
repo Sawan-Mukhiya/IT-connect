@@ -324,7 +324,7 @@
                         <div class="event-footer">
                             <div class="event-price {% if event.is_paid %}paid{% else %}free{% endif %}">
                                 {% if event.is_paid %}
-                                    ${{ event.price }}
+                                    NPR {{ event.price }}
                                 {% else %}
                                     Free
                                 {% endif %}
